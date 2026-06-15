@@ -13,6 +13,7 @@ RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
 # --- Build API ---
 FROM deps AS build
 WORKDIR /app
+COPY tsconfig.json ./
 COPY packages/types/ ./packages/types/
 RUN pnpm --filter @turno-ya/types build
 COPY apps/api/ ./apps/api/
