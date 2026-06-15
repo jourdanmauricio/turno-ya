@@ -14,6 +14,7 @@ RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
 FROM deps AS build
 WORKDIR /app
 COPY packages/types/ ./packages/types/
+RUN pnpm --filter @turno-ya/types build
 COPY apps/api/ ./apps/api/
 RUN pnpm --filter @turno-ya/api build
 RUN pnpm --filter @turno-ya/api deploy --legacy --prod /app/deployed
