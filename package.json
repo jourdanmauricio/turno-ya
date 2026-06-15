@@ -1,0 +1,22 @@
+{
+  "name": "turno-ya",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "build": "pnpm -r build",
+    "dev:api": "pnpm --filter @turno-ya/api dev",
+    "dev:web": "pnpm --filter @turno-ya/web dev",
+    "build:api": "pnpm --filter @turno-ya/api build",
+    "build:web": "pnpm --filter @turno-ya/web build"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "bcrypt"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: turnoya-db
+    environment:
+      POSTGRES_USER: turnoyaadmin
+      POSTGRES_PASSWORD: turnoya-123!
+      POSTGRES_DB: turnoya-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - turnoya-postgres:/var/lib/postgresql/data
+
+volumes:
+  turnoya-postgres:
