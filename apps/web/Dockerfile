@@ -1,21 +1,12 @@
 FROM node:22-alpine AS base
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
-# --- Build Types (before full install so pnpm virtual store includes dist/) ---
-FROM base AS build-types
-WORKDIR /app
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json tsconfig.json ./
-COPY packages/types/ ./packages/types/
-RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
-    pnpm install --frozen-lockfile --filter @turno-ya/types
-RUN pnpm --filter @turno-ya/types build
-
 # --- Dependencies ---
 FROM base AS deps
 WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/web/package.json ./apps/web/
-COPY --from=build-types /app/packages/types/ ./packages/types/
+COPY packages/types/ ./packages/types/
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 
