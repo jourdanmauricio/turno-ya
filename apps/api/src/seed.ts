@@ -17,6 +17,12 @@ const dataSource = new DataSource({
 });
 
 async function seed() {
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (!adminPassword) {
+    console.error("Error: SEED_ADMIN_PASSWORD env var no está definida.");
+    process.exit(1);
+  }
+
   await dataSource.initialize();
   console.log("Conexión establecida");
 
@@ -29,7 +35,7 @@ async function seed() {
     email: "admin@turnoya.com",
   });
   if (!existingAdmin) {
-    const hash = await bcrypt.hash("REDACTED", 10);
+    const hash = await bcrypt.hash(adminPassword, 10);
     await userRepo.save({
       nombre: "Administrador",
       email: "admin@turnoya.com",
