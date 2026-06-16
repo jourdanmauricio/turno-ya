@@ -16,7 +16,9 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+COPY tsconfig.json ./
 COPY packages/types/ ./packages/types/
+RUN pnpm --filter @turno-ya/types build
 COPY apps/web/ ./apps/web/
 RUN --mount=type=cache,target=/app/apps/web/.next/cache \
     pnpm --filter @turno-ya/web build
