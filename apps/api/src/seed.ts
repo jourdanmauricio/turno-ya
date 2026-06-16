@@ -34,8 +34,8 @@ async function seed() {
   const existingAdmin = await userRepo.findOneBy({
     email: "admin@turnoya.com",
   });
+  const hash = await bcrypt.hash(adminPassword, 10);
   if (!existingAdmin) {
-    const hash = await bcrypt.hash(adminPassword, 10);
     await userRepo.save({
       nombre: "Administrador",
       email: "admin@turnoya.com",
@@ -46,7 +46,8 @@ async function seed() {
     });
     console.log("✓ Admin creado");
   } else {
-    console.log("- Admin ya existe, omitido");
+    await userRepo.update(existingAdmin.id, { password: hash });
+    console.log("✓ Password de admin actualizada");
   }
 
   // Servicios
