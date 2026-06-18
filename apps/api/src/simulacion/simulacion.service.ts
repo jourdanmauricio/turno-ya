@@ -69,7 +69,7 @@ export class SimulacionService implements OnModuleDestroy {
 
     try {
       const turno = await this.turnosService.llamarSiguiente(cajaId, this.adminUserId!);
-      const variacion = Math.random() * 2 - 1;
+      const variacion = (Math.random() * 0.2 - 0.1) * turno.servicio.tiempoEstimadoSegundos;
       const delay = (turno.servicio.tiempoEstimadoSegundos + variacion) * 1_000;
 
       const t = setTimeout(async () => {
