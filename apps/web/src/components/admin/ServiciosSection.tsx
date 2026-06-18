@@ -9,16 +9,18 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
 import { apiFetch } from '@/lib/api'
+import { ICONOS_DISPONIBLES, ICONO_DEFAULT, getIconoComponent, type IconoKey } from '@/lib/iconos'
 
 interface Servicio {
   id: number
   nombre: string
   prefijo: string
+  icono: string
   tiempoEstimadoSegundos: number
   activo: boolean
 }
 
-const emptyForm = { nombre: '', prefijo: '', tiempoEstimadoSegundos: '' }
+const emptyForm = { nombre: '', prefijo: '', tiempoEstimadoSegundos: '', icono: ICONO_DEFAULT as string }
 
 const badge = (activo: boolean) =>
   `text-xs font-semibold px-2 py-0.5 rounded-full ${activo ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`
@@ -45,7 +47,7 @@ export function ServiciosSection() {
 
   function openEdit(s: Servicio) {
     setEditTarget(s)
-    setForm({ nombre: s.nombre, prefijo: s.prefijo, tiempoEstimadoSegundos: String(s.tiempoEstimadoSegundos) })
+    setForm({ nombre: s.nombre, prefijo: s.prefijo, tiempoEstimadoSegundos: String(s.tiempoEstimadoSegundos), icono: s.icono || ICONO_DEFAULT })
     setModalOpen(true)
   }
 
@@ -57,12 +59,12 @@ export function ServiciosSection() {
       if (editTarget) {
         await apiFetch(`/servicios/${editTarget.id}`, {
           method: 'PATCH',
-          body: JSON.stringify({ nombre: form.nombre, prefijo: form.prefijo.toUpperCase(), tiempoEstimadoSegundos: seg }),
+          body: JSON.stringify({ nombre: form.nombre, prefijo: form.prefijo.toUpperCase(), tiempoEstimadoSegundos: seg, icono: form.icono }),
         })
       } else {
         await apiFetch('/servicios', {
           method: 'POST',
-          body: JSON.stringify({ nombre: form.nombre, prefijo: form.prefijo.toUpperCase(), tiempoEstimadoSegundos: seg }),
+          body: JSON.stringify({ nombre: form.nombre, prefijo: form.prefijo.toUpperCase(), tiempoEstimadoSegundos: seg, icono: form.icono }),
         })
       }
       setModalOpen(false)
@@ -139,21 +141,27 @@ export function ServiciosSection() {
 
       {/* Mobile cards */}
       <div className="flex flex-col gap-3 md:hidden">
-        {servicios.map((s) => (
-          <div key={s.id} className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm flex flex-col gap-3">
-            <div className="flex justify-between items-start gap-2">
-              <div className="min-w-0">
-                <p className="font-medium text-text-main">{s.nombre}</p>
-                <span className="font-mono font-bold text-xs bg-action-light text-action px-2 py-0.5 rounded mt-1 inline-block">
-                  {s.prefijo}
-                </span>
+        {servicios.map((s) => {
+          const Icon = getIconoComponent(s.icono)
+          return (
+            <div key={s.id} className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm flex flex-col gap-3">
+              <div className="flex justify-between items-start gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Icon className="w-5 h-5 shrink-0 text-text-muted" />
+                  <div>
+                    <p className="font-medium text-text-main">{s.nombre}</p>
+                    <span className="font-mono font-bold text-xs bg-action-light text-action px-2 py-0.5 rounded mt-1 inline-block">
+                      {s.prefijo}
+                    </span>
+                  </div>
+                </div>
+                <span className={badge(s.activo)}>{s.activo ? 'Activo' : 'Inactivo'}</span>
               </div>
-              <span className={badge(s.activo)}>{s.activo ? 'Activo' : 'Inactivo'}</span>
+              <p className="text-sm text-text-muted">Tiempo: {s.tiempoEstimadoSegundos} seg</p>
+              {actionButtons(s)}
             </div>
-            <p className="text-sm text-text-muted">Tiempo: {s.tiempoEstimadoSegundos} seg</p>
-            {actionButtons(s)}
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Desktop table */}
@@ -161,6 +169,7 @@ export function ServiciosSection() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Icono</TableHead>
               <TableHead>Prefijo</TableHead>
               <TableHead>Nombre</TableHead>
               <TableHead>Tiempo estimado</TableHead>
@@ -169,15 +178,19 @@ export function ServiciosSection() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {servicios.map((s) => (
-              <TableRow key={s.id}>
-                <TableCell className="font-mono font-bold">{s.prefijo}</TableCell>
-                <TableCell className="font-medium">{s.nombre}</TableCell>
-                <TableCell>{s.tiempoEstimadoSegundos} seg</TableCell>
-                <TableCell><span className={badge(s.activo)}>{s.activo ? 'Activo' : 'Inactivo'}</span></TableCell>
-                <TableCell>{actionButtons(s)}</TableCell>
-              </TableRow>
-            ))}
+            {servicios.map((s) => {
+              const Icon = getIconoComponent(s.icono)
+              return (
+                <TableRow key={s.id}>
+                  <TableCell><Icon className="w-5 h-5 text-text-muted" /></TableCell>
+                  <TableCell className="font-mono font-bold">{s.prefijo}</TableCell>
+                  <TableCell className="font-medium">{s.nombre}</TableCell>
+                  <TableCell>{s.tiempoEstimadoSegundos} seg</TableCell>
+                  <TableCell><span className={badge(s.activo)}>{s.activo ? 'Activo' : 'Inactivo'}</span></TableCell>
+                  <TableCell>{actionButtons(s)}</TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </div>
@@ -191,6 +204,27 @@ export function ServiciosSection() {
             {field('Nombre', 'nombre', { placeholder: 'Ej: Pagar Servicios' })}
             {field('Prefijo', 'prefijo', { placeholder: 'Ej: A' })}
             {field('Tiempo estimado (seg)', 'tiempoEstimadoSegundos', { type: 'number', placeholder: 'Ej: 300' })}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-text-muted">Icono</label>
+              <div className="grid grid-cols-6 gap-1.5">
+                {(Object.keys(ICONOS_DISPONIBLES) as IconoKey[]).map((key) => {
+                  const Icon = ICONOS_DISPONIBLES[key]
+                  const selected = form.icono === key
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      title={key}
+                      onClick={() => setForm((f) => ({ ...f, icono: key }))}
+                      className={`flex flex-col items-center justify-center gap-1 p-2 rounded-lg border-2 transition-colors ${selected ? 'border-primary bg-action-light' : 'border-border hover:border-primary/50 hover:bg-action-light/50'}`}
+                    >
+                      <Icon className={`w-5 h-5 ${selected ? 'text-primary' : 'text-text-muted'}`} />
+                      <span className="text-[9px] text-text-muted leading-none truncate w-full text-center">{key}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModalOpen(false)}>Cancelar</Button>

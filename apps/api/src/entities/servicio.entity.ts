@@ -14,6 +14,9 @@ export class Servicio {
   @Column({ name: 'tiempo_estimado_segundos' })
   tiempoEstimadoSegundos: number;
 
+  @Column({ default: 'FileText' })
+  icono: string;
+
   @Column({ default: true })
   activo: boolean;
 }

@@ -18,14 +18,14 @@ export class ServiciosService {
     return this.repo.find({ order: { prefijo: 'ASC' } });
   }
 
-  async create(dto: { nombre: string; prefijo: string; tiempoEstimadoSegundos: number }): Promise<Servicio> {
+  async create(dto: { nombre: string; prefijo: string; tiempoEstimadoSegundos: number; icono?: string }): Promise<Servicio> {
     const servicio = this.repo.create({ ...dto, activo: true });
     return this.repo.save(servicio);
   }
 
   async update(
     id: number,
-    dto: { nombre?: string; prefijo?: string; tiempoEstimadoSegundos?: number; activo?: boolean },
+    dto: { nombre?: string; prefijo?: string; tiempoEstimadoSegundos?: number; icono?: string; activo?: boolean },
   ): Promise<Servicio> {
     const servicio = await this.repo.findOneBy({ id });
     if (!servicio) throw new NotFoundException('Servicio no encontrado');

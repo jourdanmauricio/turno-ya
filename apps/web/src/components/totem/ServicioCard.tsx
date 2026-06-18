@@ -1,12 +1,11 @@
-import { FileText, Banknote, Send } from 'lucide-react'
+import { getIconoComponent } from '@/lib/iconos'
 import { getPrefixColor } from '@/lib/prefix'
-
-const prefixIcon = { A: FileText, B: Banknote, C: Send } as const
 
 interface Servicio {
   id: number
   nombre: string
   prefijo: string
+  icono: string
   tiempoEstimadoSegundos: number
   activo: boolean
 }
@@ -19,7 +18,7 @@ interface Props {
 
 export function ServicioCard({ servicio, onSelect, disabled }: Props) {
   const color = getPrefixColor(servicio.prefijo)
-  const Icon = prefixIcon[servicio.prefijo as keyof typeof prefixIcon] ?? FileText
+  const Icon = getIconoComponent(servicio.icono)
   return (
     <button
       onClick={() => onSelect(servicio)}
