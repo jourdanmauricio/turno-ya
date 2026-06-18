@@ -35,6 +35,7 @@ export class CajasService {
                 id: turno.id,
                 numero: turno.numero,
                 prefijo: turno.prefijo,
+                color: turno.servicio.color,
                 servicio: turno.servicio.nombre,
               }
             : null,

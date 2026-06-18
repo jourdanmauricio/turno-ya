@@ -3,14 +3,13 @@
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { apiFetch } from '@/lib/api'
-import { getPrefixColor } from '@/lib/prefix'
 
 export interface TurnoItem {
   id: number
   numero: number
   prefijo: string
   prioridad: 'normal' | 'preferencial'
-  servicio: { nombre: string }
+  servicio: { nombre: string; color: string }
 }
 
 interface Props {
@@ -39,7 +38,7 @@ export function TurnoActualCard({ turno, onAction }: Props) {
         <div className="flex flex-col items-center gap-4">
           <span
             className="text-8xl font-black leading-none"
-            style={{ color: getPrefixColor(turno.prefijo) }}
+            style={{ color: turno.servicio.color }}
           >
             {turno.prefijo}{turno.numero}
           </span>

@@ -1,9 +1,8 @@
-import { getPrefixColor } from '@/lib/prefix'
 
 export interface CajaEstado {
   cajaId: number
   cajaNumero: number
-  turnoActual: { numero: number; prefijo: string } | null
+  turnoActual: { numero: number; prefijo: string; color: string } | null
 }
 
 export interface ColaItem {
@@ -11,6 +10,7 @@ export interface ColaItem {
   numero: number
   prefijo: string
   prioridad: 'normal' | 'preferencial'
+  servicio: { color: string }
 }
 
 interface Props {
@@ -44,7 +44,7 @@ export default function TurnosPanel({ cajasEstado, cola, pulsatingCajaNumero, bo
               </span>
               <span
                 className={`text-8xl font-black leading-none${bouncingCajaNumero === caja.cajaNumero ? ' animate-bounce' : ''}`}
-                style={{ color: getPrefixColor(caja.turnoActual!.prefijo) }}
+                style={{ color: caja.turnoActual!.color }}
               >
                 {caja.turnoActual!.prefijo}{caja.turnoActual!.numero}
               </span>
@@ -65,7 +65,7 @@ export default function TurnosPanel({ cajasEstado, cola, pulsatingCajaNumero, bo
               <span
                 key={t.id}
                 className="text-4xl font-black"
-                style={{ color: t.prioridad === 'preferencial' ? '#eab308' : getPrefixColor(t.prefijo) }}
+                style={{ color: t.prioridad === 'preferencial' ? '#eab308' : t.servicio.color }}
               >
                 {t.prefijo}{t.numero}
               </span>

@@ -1,7 +1,6 @@
 'use client'
 
 import { Badge } from '@/components/ui/badge'
-import { getPrefixColor } from '@/lib/prefix'
 import type { TurnoItem } from './TurnoActualCard'
 
 interface Props {
@@ -30,7 +29,7 @@ export function ColaPreview({ cola }: Props) {
             >
               <span
                 className="text-2xl font-bold"
-                style={{ color: getPrefixColor(t.prefijo) }}
+                style={{ color: t.servicio.color }}
               >
                 {t.prefijo}{t.numero}
               </span>

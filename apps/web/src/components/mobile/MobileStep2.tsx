@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import { Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { getPrefixColor } from '@/lib/prefix'
 import { getSocket } from '@/lib/socket'
 import { WS_EVENTS, type TurnoLlamadoPayload } from '@turno-ya/types'
 import type { Turno } from '@/app/totem/types'
@@ -15,7 +14,7 @@ interface Props {
 
 export default function MobileStep2({ turno, colaCount, onNuevo }: Props) {
   const [banner, setBanner] = useState<string | null>(null)
-  const color = getPrefixColor(turno.prefijo)
+  const color = turno.servicio.color
   const numeroFormato = `${turno.prefijo}-${turno.numero.toString().padStart(2, '0')}`
   const tiempoTotal = colaCount * Math.round(turno.servicio.tiempoEstimadoSegundos / 60)
 
