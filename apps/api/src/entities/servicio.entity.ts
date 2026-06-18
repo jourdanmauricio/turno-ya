@@ -17,6 +17,9 @@ export class Servicio {
   @Column({ default: 'FileText' })
   icono: string;
 
+  @Column({ default: '#2563EB' })
+  color: string;
+
   @Column({ default: true })
   activo: boolean;
 }

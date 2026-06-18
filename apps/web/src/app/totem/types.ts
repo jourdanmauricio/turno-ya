@@ -3,6 +3,7 @@ export interface Servicio {
   nombre: string
   prefijo: string
   icono: string
+  color: string
   tiempoEstimadoSegundos: number
   activo: boolean
 }

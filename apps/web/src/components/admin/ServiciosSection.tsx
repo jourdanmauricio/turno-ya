@@ -16,11 +16,26 @@ interface Servicio {
   nombre: string
   prefijo: string
   icono: string
+  color: string
   tiempoEstimadoSegundos: number
   activo: boolean
 }
 
-const emptyForm = { nombre: '', prefijo: '', tiempoEstimadoSegundos: '', icono: ICONO_DEFAULT as string }
+const COLORES_DISPONIBLES = [
+  { hex: '#2563EB', nombre: 'Azul' },
+  { hex: '#16A34A', nombre: 'Verde' },
+  { hex: '#7C3AED', nombre: 'Violeta' },
+  { hex: '#EA580C', nombre: 'Naranja' },
+  { hex: '#DC2626', nombre: 'Rojo' },
+  { hex: '#DB2777', nombre: 'Rosa' },
+  { hex: '#0D9488', nombre: 'Teal' },
+  { hex: '#CA8A04', nombre: 'Amarillo' },
+  { hex: '#64748B', nombre: 'Gris' },
+]
+
+const COLOR_DEFAULT = '#2563EB'
+
+const emptyForm = { nombre: '', prefijo: '', tiempoEstimadoSegundos: '', icono: ICONO_DEFAULT as string, color: COLOR_DEFAULT }
 
 const badge = (activo: boolean) =>
   `text-xs font-semibold px-2 py-0.5 rounded-full ${activo ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'}`
@@ -47,7 +62,7 @@ export function ServiciosSection() {
 
   function openEdit(s: Servicio) {
     setEditTarget(s)
-    setForm({ nombre: s.nombre, prefijo: s.prefijo, tiempoEstimadoSegundos: String(s.tiempoEstimadoSegundos), icono: s.icono || ICONO_DEFAULT })
+    setForm({ nombre: s.nombre, prefijo: s.prefijo, tiempoEstimadoSegundos: String(s.tiempoEstimadoSegundos), icono: s.icono || ICONO_DEFAULT, color: s.color || COLOR_DEFAULT })
     setModalOpen(true)
   }
 
@@ -59,12 +74,12 @@ export function ServiciosSection() {
       if (editTarget) {
         await apiFetch(`/servicios/${editTarget.id}`, {
           method: 'PATCH',
-          body: JSON.stringify({ nombre: form.nombre, prefijo: form.prefijo.toUpperCase(), tiempoEstimadoSegundos: seg, icono: form.icono }),
+          body: JSON.stringify({ nombre: form.nombre, prefijo: form.prefijo.toUpperCase(), tiempoEstimadoSegundos: seg, icono: form.icono, color: form.color }),
         })
       } else {
         await apiFetch('/servicios', {
           method: 'POST',
-          body: JSON.stringify({ nombre: form.nombre, prefijo: form.prefijo.toUpperCase(), tiempoEstimadoSegundos: seg, icono: form.icono }),
+          body: JSON.stringify({ nombre: form.nombre, prefijo: form.prefijo.toUpperCase(), tiempoEstimadoSegundos: seg, icono: form.icono, color: form.color }),
         })
       }
       setModalOpen(false)
@@ -147,7 +162,7 @@ export function ServiciosSection() {
             <div key={s.id} className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm flex flex-col gap-3">
               <div className="flex justify-between items-start gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Icon className="w-5 h-5 shrink-0 text-text-muted" />
+                  <Icon className="w-5 h-5 shrink-0" style={{ color: s.color }} />
                   <div>
                     <p className="font-medium text-text-main">{s.nombre}</p>
                     <span className="font-mono font-bold text-xs bg-action-light text-action px-2 py-0.5 rounded mt-1 inline-block">
@@ -182,7 +197,7 @@ export function ServiciosSection() {
               const Icon = getIconoComponent(s.icono)
               return (
                 <TableRow key={s.id}>
-                  <TableCell><Icon className="w-5 h-5 text-text-muted" /></TableCell>
+                  <TableCell><Icon className="w-5 h-5" style={{ color: s.color }} /></TableCell>
                   <TableCell className="font-mono font-bold">{s.prefijo}</TableCell>
                   <TableCell className="font-medium">{s.nombre}</TableCell>
                   <TableCell>{s.tiempoEstimadoSegundos} seg</TableCell>
@@ -204,6 +219,21 @@ export function ServiciosSection() {
             {field('Nombre', 'nombre', { placeholder: 'Ej: Pagar Servicios' })}
             {field('Prefijo', 'prefijo', { placeholder: 'Ej: A' })}
             {field('Tiempo estimado (seg)', 'tiempoEstimadoSegundos', { type: 'number', placeholder: 'Ej: 300' })}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-text-muted">Color</label>
+              <div className="flex flex-wrap gap-2">
+                {COLORES_DISPONIBLES.map(({ hex, nombre }) => (
+                  <button
+                    key={hex}
+                    type="button"
+                    title={nombre}
+                    onClick={() => setForm((f) => ({ ...f, color: hex }))}
+                    className={`w-7 h-7 rounded-full border-2 transition-transform ${form.color === hex ? 'border-gray-800 scale-110' : 'border-transparent hover:scale-105'}`}
+                    style={{ backgroundColor: hex }}
+                  />
+                ))}
+              </div>
+            </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-text-muted">Icono</label>
               <div className="grid grid-cols-6 gap-1.5">

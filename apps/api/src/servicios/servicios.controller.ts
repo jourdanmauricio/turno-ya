@@ -35,7 +35,7 @@ export class ServiciosController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   create(
-    @Body() body: { nombre: string; prefijo: string; tiempoEstimadoSegundos: number; icono?: string },
+    @Body() body: { nombre: string; prefijo: string; tiempoEstimadoSegundos: number; icono?: string; color?: string },
   ) {
     return this.service.create(body);
   }
@@ -45,7 +45,7 @@ export class ServiciosController {
   @Roles('admin')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { nombre?: string; prefijo?: string; tiempoEstimadoSegundos?: number; icono?: string; activo?: boolean },
+    @Body() body: { nombre?: string; prefijo?: string; tiempoEstimadoSegundos?: number; icono?: string; color?: string; activo?: boolean },
   ) {
     return this.service.update(id, body);
   }

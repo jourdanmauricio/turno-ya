@@ -1,5 +1,5 @@
-import { FileText, Accessibility, CheckCircle } from 'lucide-react'
-import { getPrefixColor } from '@/lib/prefix'
+import { Accessibility, CheckCircle } from 'lucide-react'
+import { getIconoComponent } from '@/lib/iconos'
 import type { Servicio } from '@/app/totem/types'
 
 interface Props {
@@ -18,20 +18,23 @@ export default function MobileStep1({ servicios, preferencial, onTogglePreferenc
         ¿Qué trámite deseás realizar?
       </h1>
 
-      {servicios.map(s => (
+      {servicios.map(s => {
+        const Icon = getIconoComponent(s.icono)
+        return (
         <button
           key={s.id}
           onClick={() => onSelect(s)}
           disabled={loading}
           className="w-full flex items-center gap-4 px-5 py-4 min-h-16 rounded-xl border-2 border-border text-left transition-colors hover:border-action hover:bg-action-light active:bg-action-light disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <FileText className="w-6 h-6 shrink-0" style={{ color: getPrefixColor(s.prefijo) }} />
+          <Icon className="w-6 h-6 shrink-0" style={{ color: s.color }} />
           <div>
             <div className="text-base font-semibold text-text-main">{s.nombre}</div>
             <div className="text-xs text-text-muted">{Math.round(s.tiempoEstimadoSegundos / 60)} min aprox.</div>
           </div>
         </button>
-      ))}
+        )
+      })}
 
       {error && <p className="text-danger text-sm text-center">{error}</p>}
 
