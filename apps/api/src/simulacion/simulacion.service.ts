@@ -21,10 +21,10 @@ export class SimulacionService implements OnModuleDestroy {
     this.detener();
     await this.resolveAdminId();
     const cajas = await this.cajaRepo.find({ where: { activo: true } });
-    for (const c of cajas) {
+    cajas.forEach((c, i) => {
       this.activeCajas.add(c.id);
-      void this.simularCaja(c.id);
-    }
+      setTimeout(() => void this.simularCaja(c.id), i * 500);
+    });
   }
 
   detener(): void {

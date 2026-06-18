@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { apiFetch } from '@/lib/api'
@@ -9,7 +10,34 @@ export interface TurnoItem {
   numero: number
   prefijo: string
   prioridad: 'normal' | 'preferencial'
-  servicio: { nombre: string; color: string }
+  llamadoEn: string | null
+  servicio: { nombre: string; color: string; tiempoEstimadoSegundos: number }
+}
+
+function useElapsedTimer(llamadoEn: string | null) {
+  const [elapsed, setElapsed] = useState(0)
+
+  useEffect(() => {
+    if (!llamadoEn) { setElapsed(0); return }
+    const update = () => setElapsed(Math.floor((Date.now() - new Date(llamadoEn).getTime()) / 1000))
+    update()
+    const id = setInterval(update, 1000)
+    return () => clearInterval(id)
+  }, [llamadoEn])
+
+  return elapsed
+}
+
+function formatTime(seconds: number) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0')
+  const s = (seconds % 60).toString().padStart(2, '0')
+  return `${m}:${s}`
+}
+
+function timerColor(elapsed: number, estimado: number) {
+  if (elapsed < estimado) return 'text-success'
+  if (elapsed < estimado * 1.25) return 'text-warning'
+  return 'text-danger'
 }
 
 interface Props {
@@ -18,6 +46,8 @@ interface Props {
 }
 
 export function TurnoActualCard({ turno, onAction }: Props) {
+  const elapsed = useElapsedTimer(turno?.llamadoEn ?? null)
+
   async function handleAtendido() {
     if (!turno) return
     await apiFetch(`/turnos/${turno.id}/atendido`, { method: 'PATCH' })
@@ -48,6 +78,14 @@ export function TurnoActualCard({ turno, onAction }: Props) {
               Preferencial
             </Badge>
           )}
+          <div className="flex items-center gap-2">
+            <span className={`text-3xl font-mono font-bold tabular-nums ${timerColor(elapsed, turno.servicio.tiempoEstimadoSegundos)}`}>
+              {formatTime(elapsed)}
+            </span>
+            <span className="text-sm text-text-muted">
+              / {formatTime(turno.servicio.tiempoEstimadoSegundos)} est.
+            </span>
+          </div>
           <div className="flex gap-3 w-full mt-2">
             <Button
               className="flex-1 h-11 bg-success text-white hover:bg-success/90"
