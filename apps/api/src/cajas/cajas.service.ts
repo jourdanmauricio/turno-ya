@@ -37,6 +37,8 @@ export class CajasService {
                 prefijo: turno.prefijo,
                 color: turno.servicio.color,
                 servicio: turno.servicio.nombre,
+                llamadoEn: turno.llamadoEn,
+                tiempoEstimadoSegundos: turno.servicio.tiempoEstimadoSegundos,
               }
             : null,
         };

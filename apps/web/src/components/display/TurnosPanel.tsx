@@ -1,8 +1,17 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 
 export interface CajaEstado {
   cajaId: number
   cajaNumero: number
-  turnoActual: { numero: number; prefijo: string; color: string } | null
+  turnoActual: {
+    numero: number
+    prefijo: string
+    color: string
+    llamadoEn: string | null
+    tiempoEstimadoSegundos: number
+  } | null
 }
 
 export interface ColaItem {
@@ -11,6 +20,63 @@ export interface ColaItem {
   prefijo: string
   prioridad: 'normal' | 'preferencial'
   servicio: { color: string }
+}
+
+function useElapsedTimer(llamadoEn: string | null) {
+  const [elapsed, setElapsed] = useState(0)
+  useEffect(() => {
+    if (!llamadoEn) { setElapsed(0); return }
+    const update = () => setElapsed(Math.floor((Date.now() - new Date(llamadoEn).getTime()) / 1000))
+    update()
+    const id = setInterval(update, 1000)
+    return () => clearInterval(id)
+  }, [llamadoEn])
+  return elapsed
+}
+
+function formatTime(seconds: number) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0')
+  const s = (seconds % 60).toString().padStart(2, '0')
+  return `${m}:${s}`
+}
+
+function timerColor(elapsed: number, estimado: number) {
+  if (elapsed < estimado) return '#16a34a'
+  if (elapsed < estimado * 1.25) return '#ca8a04'
+  return '#dc2626'
+}
+
+function CajaCard({ caja, pulsating, bouncing }: {
+  caja: CajaEstado
+  pulsating: boolean
+  bouncing: boolean
+}) {
+  const elapsed = useElapsedTimer(caja.turnoActual?.llamadoEn ?? null)
+  const estimado = caja.turnoActual?.tiempoEstimadoSegundos ?? 0
+
+  return (
+    <div
+      className={`flex flex-col items-center justify-center rounded-2xl border border-border p-6 gap-2${pulsating ? ' animate-pulse bg-primary/5 border-primary/30' : ''}`}
+    >
+      <span className="text-2xl font-bold tracking-widest text-text-muted uppercase">
+        Caja {caja.cajaNumero}
+      </span>
+      <span
+        className={`text-8xl font-black leading-none${bouncing ? ' animate-bounce' : ''}`}
+        style={{ color: caja.turnoActual!.color }}
+      >
+        {caja.turnoActual!.prefijo}{caja.turnoActual!.numero}
+      </span>
+      {caja.turnoActual?.llamadoEn && (
+        <span
+          className="text-2xl font-mono font-bold tabular-nums"
+          style={{ color: timerColor(elapsed, estimado) }}
+        >
+          {formatTime(elapsed)} / {formatTime(estimado)}
+        </span>
+      )}
+    </div>
+  )
 }
 
 interface Props {
@@ -35,20 +101,12 @@ export default function TurnosPanel({ cajasEstado, cola, pulsatingCajaNumero, bo
           <p className="col-span-2 text-text-muted text-2xl px-2 py-4">Sin turnos en atención</p>
         ) : (
           cajasActivas.map((caja) => (
-            <div
+            <CajaCard
               key={caja.cajaId}
-              className={`flex flex-col items-center justify-center rounded-2xl border border-border p-6 gap-2${pulsatingCajaNumero === caja.cajaNumero ? ' animate-pulse bg-primary/5 border-primary/30' : ''}`}
-            >
-              <span className="text-2xl font-bold tracking-widest text-text-muted uppercase">
-                Caja {caja.cajaNumero}
-              </span>
-              <span
-                className={`text-8xl font-black leading-none${bouncingCajaNumero === caja.cajaNumero ? ' animate-bounce' : ''}`}
-                style={{ color: caja.turnoActual!.color }}
-              >
-                {caja.turnoActual!.prefijo}{caja.turnoActual!.numero}
-              </span>
-            </div>
+              caja={caja}
+              pulsating={pulsatingCajaNumero === caja.cajaNumero}
+              bouncing={bouncingCajaNumero === caja.cajaNumero}
+            />
           ))
         )}
       </div>
