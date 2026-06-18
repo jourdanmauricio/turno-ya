@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { QRCodeSVG } from 'qrcode.react'
+import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react'
 import { Button } from '@/components/ui/button'
 import { Download, Loader2, Save } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
@@ -198,7 +198,7 @@ export function CartelQrSection() {
 
               <div className="border-4 border-gray-900 rounded-2xl p-3 bg-white">
                 {url ? (
-                  <QRCodeSVG value={url} size={160} level="M" />
+                  <QRCodeCanvas value={url} size={160} level="M" />
                 ) : (
                   <div className="w-40 h-40 bg-gray-100 flex items-center justify-center text-xs text-gray-400">
                     Ingresá una URL
