@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { Menu } from 'lucide-react'
 import { Sidebar } from '@/components/admin/Sidebar'
-import { OperadoresSection } from '@/components/admin/OperadoresSection'
+// import { OperadoresSection } from '@/components/admin/OperadoresSection'
 import { ServiciosSection } from '@/components/admin/ServiciosSection'
 import { CajasSection } from '@/components/admin/CajasSection'
 import { EstadisticasSection } from '@/components/admin/EstadisticasSection'
@@ -21,7 +21,7 @@ export default function AdminPage() {
   const { nombreApp } = useAppConfig()
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
-  const [seccion, setSeccion] = useState<Seccion>('operadores')
+  const [seccion, setSeccion] = useState<Seccion>('servicios')
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
@@ -79,7 +79,7 @@ export default function AdminPage() {
       </div>
 
       <main className="flex-1 overflow-y-auto mt-14 md:mt-0 p-4 md:p-8">
-        {seccion === 'operadores' && <OperadoresSection />}
+        {/* seccion === 'operadores' && <OperadoresSection /> */}
         {seccion === 'servicios' && <ServiciosSection />}
         {seccion === 'cajas' && <CajasSection />}
         {seccion === 'estadisticas' && <EstadisticasSection />}

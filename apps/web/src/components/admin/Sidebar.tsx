@@ -13,7 +13,7 @@ interface SidebarProps {
 }
 
 const SECCIONES: { id: Seccion; label: string }[] = [
-  { id: 'operadores', label: 'Operadores' },
+  // { id: 'operadores', label: 'Operadores' },
   { id: 'servicios', label: 'Servicios' },
   { id: 'cajas', label: 'Cajas' },
   { id: 'estadisticas', label: 'Estadísticas' },

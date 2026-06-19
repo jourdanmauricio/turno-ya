@@ -1,13 +1,30 @@
 'use client'
 
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react'
+import { QRCodeCanvas } from 'qrcode.react'
 import { Button } from '@/components/ui/button'
 import { Download, Loader2, Save } from 'lucide-react'
 import { apiFetch } from '@/lib/api'
 import { useAppConfig } from '@/context/AppConfigContext'
 
 type ToastState = { msg: string; type: 'ok' | 'err' } | null
+
+function wrapCanvasText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const words = text.split(' ')
+  const lines: string[] = []
+  let current = ''
+  for (const word of words) {
+    const test = current ? `${current} ${word}` : word
+    if (ctx.measureText(test).width > maxWidth && current) {
+      lines.push(current)
+      current = word
+    } else {
+      current = test
+    }
+  }
+  if (current) lines.push(current)
+  return lines
+}
 
 interface Config {
   cartelTitulo: string
@@ -65,27 +82,85 @@ export function CartelQrSection() {
     if (!previewRef.current) return
     setGenerando(true)
     try {
-      const html2canvas = (await import('html2canvas')).default
       const { jsPDF } = await import('jspdf')
 
-      const canvas = await html2canvas(previewRef.current, {
-        scale: 3,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-      })
+      const S = 2
+      const W = 794 * S
+      const H = 1123 * S
+      const pad = 56 * S
+      const contentW = W - pad * 2
 
-      const imgData = canvas.toDataURL('image/png')
+      const poster = document.createElement('canvas')
+      poster.width = W
+      poster.height = H
+      const ctx = poster.getContext('2d')!
+
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, W, H)
+
+      let curY = pad
+
+      // Header bar
+      const headerH = 72 * S
+      ctx.fillStyle = '#3B57F7'
+      ctx.beginPath()
+      ctx.roundRect(pad, curY, contentW, headerH, 12 * S)
+      ctx.fill()
+      ctx.fillStyle = '#ffffff'
+      ctx.font = `bold ${28 * S}px Arial, sans-serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(nombreApp, W / 2, curY + headerH / 2)
+      curY += headerH + 48 * S
+
+      // Title
+      const titleLineH = 44 * S
+      ctx.fillStyle = '#111827'
+      ctx.font = `bold ${34 * S}px Arial, sans-serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'top'
+      const titleLines = wrapCanvasText(ctx, titulo || 'Título del cartel', contentW)
+      titleLines.forEach((line, i) => ctx.fillText(line, W / 2, curY + i * titleLineH))
+      curY += titleLines.length * titleLineH + 48 * S
+
+      // QR code
+      const qrEl = previewRef.current.querySelector('canvas')
+      if (qrEl) {
+        const qrSize = 240 * S
+        const qrPad = 14 * S
+        const boxSize = qrSize + qrPad * 2
+        const boxX = (W - boxSize) / 2
+        ctx.fillStyle = '#ffffff'
+        ctx.strokeStyle = '#111827'
+        ctx.lineWidth = 6 * S
+        ctx.beginPath()
+        ctx.roundRect(boxX, curY, boxSize, boxSize, 18 * S)
+        ctx.fill()
+        ctx.stroke()
+        ctx.drawImage(qrEl, boxX + qrPad, curY + qrPad, qrSize, qrSize)
+        curY += boxSize + 48 * S
+      }
+
+      // Description
+      const descLineH = 26 * S
+      ctx.fillStyle = '#4B5563'
+      ctx.font = `${18 * S}px Arial, sans-serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'top'
+      const descLines = wrapCanvasText(ctx, descripcion, contentW)
+      descLines.forEach((line, i) => ctx.fillText(line, W / 2, curY + i * descLineH))
+      curY += descLines.length * descLineH + 24 * S
+
+      // URL
+      ctx.fillStyle = '#9CA3AF'
+      ctx.font = `${12 * S}px Arial, sans-serif`
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'top'
+      ctx.fillText(url, W / 2, curY)
+
+      const imgData = poster.toDataURL('image/png')
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-
-      const pageW = 210
-      const pageH = 297
-      const margin = 15
-      const maxW = pageW - margin * 2
-      const ratio = canvas.height / canvas.width
-      const imgH = maxW * ratio
-
-      const y = (pageH - imgH) / 2
-      pdf.addImage(imgData, 'PNG', margin, Math.max(margin, y), maxW, imgH)
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297)
       pdf.save('cartel-qr.pdf')
     } finally {
       setGenerando(false)

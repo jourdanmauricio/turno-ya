@@ -16,7 +16,7 @@ export default function MobileStep2({ turno, colaCount, onNuevo }: Props) {
   const [banner, setBanner] = useState<string | null>(null)
   const color = turno.servicio.color
   const numeroFormato = `${turno.prefijo}-${turno.numero.toString().padStart(2, '0')}`
-  const tiempoTotal = colaCount * Math.round(turno.servicio.tiempoEstimadoSegundos / 60)
+  const tiempoTotal = Math.round(colaCount * turno.servicio.tiempoEstimadoSegundos / 60)
 
   useEffect(() => {
     const canNotify = typeof window !== 'undefined' && 'Notification' in window

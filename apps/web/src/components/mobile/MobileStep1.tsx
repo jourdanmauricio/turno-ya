@@ -30,7 +30,7 @@ export default function MobileStep1({ servicios, preferencial, onTogglePreferenc
           <Icon className="w-6 h-6 shrink-0" style={{ color: s.color }} />
           <div>
             <div className="text-base font-semibold text-text-main">{s.nombre}</div>
-            <div className="text-xs text-text-muted">{Math.round(s.tiempoEstimadoSegundos / 60)} min aprox.</div>
+            <div className="text-xs text-text-muted">{s.tiempoEstimadoSegundos} seg aprox.</div>
           </div>
         </button>
         )
