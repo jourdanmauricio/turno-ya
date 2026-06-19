@@ -22,11 +22,6 @@ const RUTAS = [
     descripcion: 'La URL que va en el cartel QR. El cliente la abre desde su celular para sacar turno sin acercarse al tótem.',
   },
   {
-    path: '/operador',
-    label: 'Panel del operador',
-    descripcion: 'El operador de cada caja llama el siguiente turno y marca la atención desde aquí.',
-  },
-  {
     path: '/admin',
     label: 'Panel de administración',
     descripcion: 'Esta pantalla. Configuración general de la aplicación.',
